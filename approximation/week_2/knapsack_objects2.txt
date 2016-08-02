@@ -1,0 +1,13 @@
+name,s,v
+sunglasses,0.1,5.0
+knife,0.2,9.0
+hat,0.4,3.0
+cat,3.5,1.0
+swimsuit_top,2.0,3.0
+swimsuit_bottom,2.0,3.0
+bag,0.9,2.0
+necklace,1.0,0.0
+clothes,0.3,2.0
+sandals,0.4,3.0
+sunscreen,0.1,6.0
+scarf,0.5,1.0
