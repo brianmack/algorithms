@@ -10,8 +10,8 @@ b = parse(Float64, ARGS[3]);
 
 data = readtable(data_fname);
 
-v = convert(Array, data[:v])
-s = convert(Array, data[:s])
+v = convert(Array{Float64}, data[:v])
+s = convert(Array{Float64}, data[:s])
 
 print(string(v) * "\n")
 print(string(s) * "\n")
