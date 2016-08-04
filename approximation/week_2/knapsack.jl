@@ -8,6 +8,10 @@ import StatsBase
 # Fractional Knapsack (homework)
 # ------------------------------------
 
+"""
+Get v/s ratio and return in a new array.  Inputs are value and size
+arrays.
+"""
 function compute_value_ratios(v::Array{Float64}, s::Array{Float64})
     r = zeros(Float64, length(v))
     for i in 1:length(v)    
@@ -18,8 +22,10 @@ end
 
 
 """
-Homework assignment 2 answer.
-
+Homework assignment 2 answer:  
+Here we're allowed to pack fractional items.  Sort in decreasing v/s,
+(or increasing s/v), and choose as much as possible from each object
+before moving onto the next until target or capacity is reached.
 """
 function fractional_knapsack(
     v::Array{Float64}, s::Array{Float64}, target, capacity)
@@ -27,17 +33,11 @@ function fractional_knapsack(
     p = zeros(Float64, length(v))
     r, sort_indices = compute_value_ratios(v, s)
 
-    println("r = ", r);
-    println("sort order = ", sort_indices);
-
     for i in sort_indices
         
         if target <= 0 || capacity <= 0
             break
         end
-        
-        print("-------------\n")
-        println("t=", target, " b=", capacity, " v=", v[i], " s=", s[i]);
         
         if target > v[i]
             p[i] = min(1, capacity / s[i])
@@ -57,12 +57,10 @@ end
 The point of lesson 2:  rounding the input.  Here we manipulate our
 approximation scheme via N, the number of values we map to.
 """
-
-N = 100.0
+N = 1000.0
 function round_input(v::Array{Float64}, v_max)
     
     alpha = N / v_max # rounding constant
-    println("alpha ", alpha)
     v_rounded = Array(Int64, length(v))
     for i in 1:length(v)
         v_rounded[i] = floor(v[i] * alpha)
@@ -83,48 +81,45 @@ function fill_knapsack(
     v_max = maximum(v) 
     v_rounded = round_input(v, v_max)
     
-    println(s)
-    println(v_rounded)
+    println("s = ", s)
+    println("v = ", v)
+    println("v_r = ", v_rounded)
     
     # dimensions are m objects by n*N values, plus one for the zero index
     values = 0:(N * length(v))
-    nvalues = length(values)
-    dp = zeros(Float64, length(s), nvalues)
+    nvalues = length(values) 
+    dp = fill(capacity + 1, length(s), nvalues)
     
     # initialize
-    
-    
     dp[1, 1] = 0.0
     dp[1, 2] = s[1]
-    for i in 1:v_rounded[1]
-        dp[1,i] = s[1]
-    end
-    for i in v_rounded[1]:nvalues
-        dp[1,i] = capacity + 1
+    for val in 0:v_rounded[1]
+        dp[1,val + 1] = s[1]
     end
 
     for i in 2:length(s)
-        for j in 1:v_rounded[i]
+        for j in 1:(v_rounded[i] - 1)
             dp[i, j] = dp[i - 1, j]
         end
-        for j in (v_rounded[i] + 1):nvalues
+        for j in v_rounded[i]:nvalues
             dp[i, j] = min(
                 dp[i - 1, j],
-                dp[i - 1, j - (v_rounded[i])]  + s[i])
+                dp[i - 1, (j - v_rounded[i]) + 1]  + s[i])
         end
     end
 
-    println(dp)
+    # Walk backward (from highest to lowest value) over the final
+    # row of the array until you reach a size lower than capacity.
     max_val = 0.0
-    # clean this up -- was designed for true / false case when
-    # you could identify first item != 0, doesn't work so hot now
-    for (i, val) in enumerate(dp[length(s), end:-1:1])
-        if val != capacity + 1
-            max_val = nvalues - i
-            break
+    for (i, size_) in enumerate(dp[length(s), end:-1:1])
+        if size_ <= capacity
+            # no need to index to zero with a '+1' because 'nvalues'
+            # already accounts for the extra index.
+            return max_val * (v_max / N)
         end
     end
-    return max_val / N
+    return 0.0
+    return max_val * (v_max / N)
 end
 
 end
