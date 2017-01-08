@@ -15,6 +15,29 @@ solution.)  In both cases, we manipulate our input or output
 values to conform to some formulation of the problem that we do
 know how to solve, and using which we can make some guarantees
 about performance and accuracy.
+
+A short analysis of the approximation scheme:
+
+Let the final output value (via scaled inputs) of the algorithm be:
+
+    S = \sum_{s} v_i
+
+And the difference to the unscaled output:
+
+    \deltaS = S - S* = \sum_{s} (v_i - v_i_s) ; real minus scaled
+
+We scale with factor \alpha = ( N / v_max ) ; hash v into N
+    v_i_s \lte vi \dot N / v_max
+    ( v_i_s \dot v_max / N ) \lte v_i
+
+So \deltaS \lte (n \dot v_max) / N
+
+    S \gte OPT - (n \dot v_max) / N \gte v_max ; discard all v not fitting
+    S \gte OPT - (OPT / N OPT)
+    S \gte (1 - (1/N)) OPT
+
+EG .99 OPT
+
 """
 
 module knapsack
@@ -181,17 +204,12 @@ function fill_knapsack(
     end
 
     for i in 2:length(s)
-        # not possible to have a valid size for value this large, 
-        # so don't do any work for the 'upper triangle'
-        #last_index = i * N + 1
 
         # can we achieve v_i using some combo of the previous items,
         # or do we need to include this item to get there?
         
         # also record the best value seen so far for size < capacity
         # to avoid re-scanning the array at the end
-
-        # best size to achieve values up until this value
         for v_i in 1:v_rounded[i] + 1
             dp[i, v_i] = min(dp[i - 1, v_i], s[i])
         end
@@ -202,8 +220,8 @@ function fill_knapsack(
             
             # one indexed -- when v_i - v_rounded[i] = 0 ; use index 1 
             dp[i, v_i] = min(
-                    dp[i - 1, v_i],
-                    dp[i - 1, (v_i - v_rounded[i])]  + s[i])
+                dp[i - 1, v_i],
+                dp[i - 1, (v_i - v_rounded[i])]  + s[i])
 
         end
     end
