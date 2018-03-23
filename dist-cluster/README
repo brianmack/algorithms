@@ -1,0 +1,4 @@
+dist-cluster is an algorithm for taking an input distance
+matrix, initializing points in 2-d space, plus a third 
+dimension for clustering according to some quality measure
+with a dependent variable.
